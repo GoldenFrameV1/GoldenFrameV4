@@ -1,23 +1,139 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fibonacci Camera Overlay</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Golden Ratio Camera</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: black;
+      overflow: hidden;
+    }
+    #camera-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    video {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+    #spiral {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 2;
+      pointer-events: none;
+      transform: scaleX(1); /* Flipped with JS if needed */
+      opacity: 1;
+    }
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 3;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background-color: white;
+      color: black;
+      cursor: pointer;
+    }
+
+    @media (min-width: 768px) {
+      video {
+        width: auto;
+        height: 80vh;
+        aspect-ratio: 4 / 3;
+      }
+      #spiral {
+        width: auto;
+        height: 80vh;
+        aspect-ratio: 4 / 3;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="camera-container">
     <video id="camera" autoplay playsinline></video>
-    <img id="spiral" src="spiral.svg" alt="Fibonacci Spiral" />
-    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="spiral" src="https://e7.pngegg.com/pngimages/619/990/png-clipart-fibonacci-number-golden-spiral-golden-ratio-sequence-mathematics-angle-white.png" alt="Fibonacci Spiral" />
+    <div id="controls">
+      <button onclick="takePhoto()">📸 Take Photo</button>
+      <button onclick="flipCamera()">🔄 Flip Camera</button>
+      <button onclick="flipSpiral()">🔃 Flip Spiral</button>
+    </div>
   </div>
-  <div id="controls">
-    <button id="capture">📸</button>
-    <button id="flip">🔄</button>
-    <button id="flip-spiral">🔁</button>
-  </div>
-  <script src="script.js"></script>
+
+  <canvas id="canvas" style="display: none;"></canvas>
+
+  <script>
+    let cameraStream;
+    let currentDeviceId = null;
+    let usingFrontCamera = true;
+
+    async function startCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+
+      const constraints = {
+        video: {
+          facingMode: usingFrontCamera ? "user" : "environment",
+          deviceId: currentDeviceId ? { exact: currentDeviceId } : undefined
+        }
+      };
+
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        document.getElementById("camera").srcObject = cameraStream;
+      } catch (err) {
+        alert("Camera access denied or not available.");
+        console.error(err);
+      }
+    }
+
+    function takePhoto() {
+      const video = document.getElementById("camera");
+      const canvas = document.getElementById("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const link = document.createElement("a");
+      link.download = "photo.jpg";
+      link.href = canvas.toDataURL("image/jpeg");
+      link.click();
+    }
+
+    function flipCamera() {
+      usingFrontCamera = !usingFrontCamera;
+      startCamera();
+    }
+
+    function flipSpiral() {
+      const spiral = document.getElementById("spiral");
+      spiral.style.transform = spiral.style.transform === "scaleX(-1)" ? "scaleX(1)" : "scaleX(-1)";
+    }
+
+    window.addEventListener("load", startCamera);
+  </script>
 </body>
 </html>
