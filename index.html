@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fibonacci Camera Overlay</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="camera-container">
+    <video id="camera" autoplay playsinline></video>
+    <img id="spiral" src="spiral.svg" alt="Fibonacci Spiral" />
+    <canvas id="canvas" style="display:none;"></canvas>
+  </div>
+  <div id="controls">
+    <button id="capture">📸</button>
+    <button id="flip">🔄</button>
+    <button id="flip-spiral">🔁</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
